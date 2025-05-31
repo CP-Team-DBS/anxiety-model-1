@@ -31,6 +31,7 @@ POST /predict
 
 Request Body:
 
+```python
 {
   "merasa_gugup_cemas_atau_gelisah": "Beberapa Hari",
   "tidak_dapat_menghentikan_kekhawatiran": "Beberapa Hari",
@@ -40,13 +41,14 @@ Request Body:
   "mudah_tersinggung_dan_mudah_marah": "Beberapa Hari",
   "merasa_takut_seolah_olah_sesuatu_buruk_akan_terjadi": "Beberapa Hari"
 }
-
+```
 
 Response:
 
+```python
 {
   "total_score": 7,
   "anxiety_level": "Sedang",
   "anxiety_label_encoded": 1
 }
-
+```
