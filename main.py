@@ -72,6 +72,7 @@ class PredictionOutput(BaseModel):
     total_score: int
     anxiety_level: str
     anxiety_label_encoded: int
+    message: str  # tambahan
 
 @app.get("/")
 async def read_root():
@@ -79,7 +80,6 @@ async def read_root():
 
 @app.post("/predict", response_model=PredictionOutput)
 async def predict_anxiety(input_data: GAD7Input):
-    # Original column names from your notebook's df_clean
     original_column_names = [
         'Merasa gugup, cemas, atau gelisah',
         'Tidak dapat menghentikan kekhawatiran',
@@ -89,10 +89,9 @@ async def predict_anxiety(input_data: GAD7Input):
         'Mudah tersinggung dan mudah marah',
         'Merasa takut seolah-olah sesuatu buruk akan terjadi'
     ]
-    
-    # Convert string answers to numerical scores using ANSWER_MAPPING
+
+    # Convert string answers to numerical scores
     processed_input = {}
-    
     try:
         processed_input[original_column_names[0]] = ANSWER_MAPPING[input_data.merasa_gugup_cemas_atau_gelisah]
         processed_input[original_column_names[1]] = ANSWER_MAPPING[input_data.tidak_dapat_menghentikan_kekhawatiran]
@@ -106,20 +105,24 @@ async def predict_anxiety(input_data: GAD7Input):
 
     input_df = pd.DataFrame([processed_input])
 
-    # Predict the anxiety level (encoded label)
+    # Predict the anxiety level
     prediction_encoded = model.predict(input_df)[0]
-
-    # Decode the numerical prediction back to the original anxiety level string
     anxiety_level = label_encoder.inverse_transform([prediction_encoded])[0]
-
-    # Calculate total score
     total_score = input_df.sum(axis=1).iloc[0]
+
+    # Determine explanation message based on total_score
+    if total_score <= 4:
+        explanation = "Tingkat kecemasan Anda tergolong Normal. Tetap jaga keseimbangan aktivitas harian dan istirahat yang cukup."
+    elif total_score <= 9:
+        explanation = "Tingkat kecemasan Anda tergolong ringan. Perlu mulai memperhatikan tanda-tanda stres dan mengelolanya dengan baik."
+    elif total_score <= 14:
+        explanation = "Tingkat kecemasan Anda tergolong sedang. Disarankan untuk berbicara dengan teman terpercaya atau mencari bantuan profesional jika diperlukan."
+    else:
+        explanation = "Tingkat kecemasan Anda tergolong berat. Sebaiknya segera konsultasikan dengan profesional seperti psikolog atau psikiater."
 
     return {
         "total_score": total_score,
         "anxiety_level": anxiety_level,
-        "anxiety_label_encoded": prediction_encoded
-        
+        "anxiety_label_encoded": prediction_encoded,
+        "message": explanation
     }
-
-
