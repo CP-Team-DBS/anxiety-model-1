@@ -46,9 +46,15 @@ Request Body:
 Response:
 
 ```python
+
+
 {
   "total_score": 7,
   "anxiety_level": "Sedang",
   "anxiety_label_encoded": 1
 }
 ```
+
+Documentation Postman
+
+https://documenter.getpostman.com/view/45687139/2sB2x2LaNe
